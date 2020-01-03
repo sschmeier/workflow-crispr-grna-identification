@@ -20,10 +20,10 @@ ref:
 crispr:
   # test this many top gRNAs for off targets
   # the more the longer it will run
-  max_num_test: 25
+  max_num_test: 3
   # will notm  consider any gRNA with a lower efficacy
   min_efficacy: 0
   # number allowed missmatches for offtarget analysis
   num_mm: 0
   # Number of final selected "best" gRNAs per tx
-  num_select: 10
+  num_select: 2
