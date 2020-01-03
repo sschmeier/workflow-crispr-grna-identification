@@ -1,3 +1,5 @@
+[![pipeline status](https://gitlab.com/schmeierlab/workflows/crisprseek-grna-id/badges/master/pipeline.svg)](https://gitlab.com/schmeierlab/workflows/crisprseek-grna-id/commits/master)
+
 # PROJECT: crisprseek-grna-id
 
 - AUTHOR: Sebastian Schmeier (s.schmeier@pm.me)
