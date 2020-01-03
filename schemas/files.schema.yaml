@@ -1,0 +1,10 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: an entry in the sample sheet
+properties:
+  gtf:
+    type: string
+    description: GTF-file path
+  required:
+    - gtf
+

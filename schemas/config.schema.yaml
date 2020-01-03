@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+properties:
+  resultdir:
+    type: string
+
+  gtf:
+    type: object
+    properties:
+      files:
+        type: string
+      upstream:
+        type: integer
+      dnstream:
+        type: integer
+    required:
+      - files
+      - upstream
+      - dnstream
+
+  ref:
+    type: object
+    properties:
+      genome:
+        type: string
+      version:
+          type: string
+    required:
+      - genome
+      - version
+
+  crispr:
+    type: object
+    properties:
+      max_num_test:
+        type: integer
+      min_efficacy:
+        type: number
+      num_mm:
+          ype: integer
+      num_select:
+        type: integer
+    required:
+      - max_num_test
+      - min_efficacy
+      - num_mm
+      - num_select
+
+required:
+  - resultdir
+  - gtf
+  - ref
+  - crispr

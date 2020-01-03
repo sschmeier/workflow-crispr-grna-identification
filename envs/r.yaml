@@ -1,0 +1,18 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconductor-crisprseek=1.26.0
+  - bioconductor-bsgenome.hsapiens.ucsc.hg38=1.4.1
+  - bioconductor-bsgenome.hsapiens.ucsc.hg19=1.4.0
+  - bioconductor-bsgenome.mmusculus.ucsc.mm9=1.4.0
+  - bioconductor-bsgenome.mmusculus.ucsc.mm10=1.4.0
+  - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene=3.10.0
+  - bioconductor-txdb.hsapiens.ucsc.hg19.knowngene=3.2.2
+  - bioconductor-txdb.mmusculus.ucsc.mm10.knowngene=3.10.0
+  - bioconductor-txdb.mmusculus.ucsc.mm9.knowngene=3.2.2
+  - bioconductor-org.hs.eg.db=3.10.0
+  - bioconductor-org.mmu.eg.db=3.10.0
+  - r-base=3.6.2
+  

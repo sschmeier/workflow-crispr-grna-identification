@@ -1,0 +1,11 @@
+gtf
+../../nz-cohort/subselect_tx/nzcohort.known.de.up.gtf
+../../nz-cohort/subselect_tx/nzcohort.novels.de.up.gtf
+../../normal-primary/compare-tx-crc/novel/PRJNA413956/novels-up.gtf
+../../normal-primary/compare-tx-crc/novel/PRJNA218851/novels-up.gtf
+../../normal-primary/compare-tx-crc/known/PRJNA413956/known-up.gtf
+../../normal-primary/compare-tx-crc/known/PRJNA218851/known-up.gtf
+../../primary-mets/compare-tx-crc/known/AG0271/known-up.gtf
+../../primary-mets/compare-tx-crc/known/PRJNA218851/known-up.gtf
+../../primary-mets/compare-tx-crc/novel/AG0271/novels-up.gtf
+../../primary-mets/compare-tx-crc/novel/PRJNA218851/novels-up.gtf

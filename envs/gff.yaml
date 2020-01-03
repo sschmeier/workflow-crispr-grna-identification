@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bedtools=2.29.2
+  - gffcompare=0.11.2
+  - gffread=0.11.6
+  - gffutils=0.9
