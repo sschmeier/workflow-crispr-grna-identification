@@ -1,0 +1,3 @@
+WorkflowError in line 35 of /mnt/data/projects/active/crc-lncrna/analyses/general/get-crispr-grna/Snakefile:
+Schema file /mnt/data/projects/active/crc-lncrna/analyses/general/get-crispr-grna/.tests/schemas/config.schema.yaml not found.
+  File "/mnt/data/projects/active/crc-lncrna/analyses/general/get-crispr-grna/Snakefile", line 35, in <module>

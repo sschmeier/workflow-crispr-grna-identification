@@ -1,9 +1,9 @@
-resultdir: analysis_test
+resultdir: test_analysis
 
 # INPUTS
 # gtf-files with tx
 gtf:
-  files: files.txt
+  files: tests/test_files.txt
   # for each tx in a gtf file extract TSS and then extract this many nt
   # upstream and dnstream. This will be the region to look for gRNAs.
   upstream: 1000
@@ -12,7 +12,7 @@ gtf:
 # GENOME
 ref:
   # fasta-file
-  genome: genome.chr21.fa
+  genome: tests/genome.chr21.fa
   # the genome version
   # currently supported hg38, hg19, mm10, mm9
   version: hg38
