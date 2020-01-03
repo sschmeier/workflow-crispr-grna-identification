@@ -1,0 +1,3 @@
+gtf
+tests/test1.gtf
+tests/test2.gtf
