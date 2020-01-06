@@ -5,6 +5,8 @@
 log <- file(snakemake@log[[1]], open="wt")
 sink(log)
 sink(log, type="message")
+# for the paranoid
+set.seed(42)
 
 offtarget_run <- function(data_path, out_path, threads, genome_version, missmatches) {
     # R code

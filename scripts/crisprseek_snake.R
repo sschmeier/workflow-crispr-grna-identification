@@ -5,6 +5,8 @@
 log <- file(snakemake@log[[1]], open="wt")
 sink(log)
 sink(log, type="message")
+# for the paranoid
+set.seed(42)
 
 get_grna <- function(data_path, out_path, threads, genome_version) {
     # R code
