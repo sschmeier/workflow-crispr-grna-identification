@@ -171,7 +171,7 @@ checkpoint split_fasta:
     input:
         join(DIR_RES, "unique_tx_pos_updn.fa")
     output:
-        dir=directory(join(DIR_RES, "tmp")),
+        dir=directory(join(DIR_RES, "00_tmp")),
         info=join(DIR_RES, "splits_info.tsv")
     log:
         join(DIR_LOGS, "split_fasta.log")
@@ -188,9 +188,9 @@ checkpoint split_fasta:
 
 rule crispr:
     input:
-        join(DIR_RES, "tmp/{i}.fa")
+        join(DIR_RES, "00_tmp/{i}.fa")
     output:
-        directory(join(DIR_RES, "crispr/{i}"))
+        directory(join(DIR_RES, "01_crispr/{i}"))
     log:
         join(DIR_LOGS, "crispr/{i}.log")
     benchmark:
@@ -207,10 +207,10 @@ rule crispr:
 
 rule select_bestEff_grna:
     input:
-        join(DIR_RES, "crispr/{i}")
+        join(DIR_RES, "01_crispr/{i}")
     output:
-        eff=join(DIR_RES, "crispr_bestEff/{i}.tsv"),
-        fa=join(DIR_RES, "crispr_bestEff/{i}.fa")
+        eff=join(DIR_RES, "02_crispr_bestEff/{i}.tsv"),
+        fa=join(DIR_RES, "02_crispr_bestEff/{i}.fa")
     log:
         join(DIR_LOGS, "select_bestEff_grna/{i}.log")
     benchmark:
@@ -220,7 +220,7 @@ rule select_bestEff_grna:
     conda:
         join(DIR_ENVS, "pandas.yaml")
     params:
-        in_eff=join(DIR_RES, "crispr/{i}/gRNAefficacy.xls"),
+        in_eff=join(DIR_RES, "01_crispr/{i}/gRNAefficacy.xls"),
         num=CFG_NUM,
         min=CFG_MIN
     script:
@@ -229,9 +229,9 @@ rule select_bestEff_grna:
 
 rule crispr_offtargets:
     input:
-        join(DIR_RES, "crispr_bestEff/{i}.fa")
+        join(DIR_RES, "02_crispr_bestEff/{i}.fa")
     output:
-        directory(join(DIR_RES, "crispr_offtarget/{i}"))
+        directory(join(DIR_RES, "03_crispr_offtarget/{i}"))
     log:
         join(DIR_LOGS, "crispr_offtargets/{i}.log")
     benchmark:
@@ -250,10 +250,10 @@ rule crispr_offtargets:
 
 rule select_gRNA_min_offtargets:
     input:
-        join(DIR_RES, "crispr_offtarget/{i}")
+        join(DIR_RES, "03_crispr_offtarget/{i}")
     output:
-        eff=join(DIR_RES, "crispr_final_gRNA/{i}.tsv"),
-        fa=join(DIR_RES, "crispr_final_gRNA/{i}.fa")
+        eff=join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv"),
+        fa=join(DIR_RES, "04_crispr_final_gRNA/{i}.fa")
     log:
         join(DIR_LOGS, "select_gRNA_min_offtargets/{i}.log")
     benchmark:
@@ -263,7 +263,7 @@ rule select_gRNA_min_offtargets:
     conda:
         join(DIR_ENVS, "pandas.yaml")
     params:
-        infile=join(DIR_RES, "crispr_offtarget/{i}/Summary.xls"),
+        infile=join(DIR_RES, "03_crispr_offtarget/{i}/Summary.xls"),
         num=CFG_NUM_FINAL,
         missmatches=CFG_MM
     script:
@@ -276,8 +276,8 @@ def aggregate_input(wildcards):
     generated at the split step
     '''
     checkpoint_output = checkpoints.split_fasta.get(**wildcards).output[0]
-    #return expand(join(DIR_RES, "crispr_final_gRNA/{i}.tsv"),
-    return expand(join(DIR_RES, "crispr_offtarget/{i}"), 
+    #return expand(join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv"),
+    return expand(join(DIR_RES, "03_crispr_offtarget/{i}"), 
                   i=glob_wildcards(join(checkpoint_output, '{i}.fa')).i)
 
 
