@@ -58,6 +58,11 @@ CFG_NUM  = config["crispr"]["max_num_test"]
 CFG_MIN  = config["crispr"]["min_efficacy"]
 CFG_NUM_FINAL = config["crispr"]["num_select"]
 CFG_MM = config["crispr"]["num_mm"]
+CFG_SM = config["crispr"]["scoring_method"]
+if CFG_SM not in ["Hsu-Zhang", "CFDscore"]:
+    print("Error: Scoring method needs to be one of Hsu-Zhang or CFDscore. EXIT.")
+    sys.exit(1)
+    
 ## =============================================================================
 ## SAMPLES
 files = pd.read_csv(config["gtf"]["files"], sep=",").set_index("gtf", drop=False)
@@ -237,7 +242,8 @@ rule crispr_offtargets:
     threads: 1  # quick with one seq ~ under 1 min
     params:
         genome_version=CFG_GENOME_VER,
-        missmatches=CFG_MM
+        missmatches=CFG_MM,
+        scoring_method=CFG_SM
     script:
         join(DIR_SCRIPTS, "crisprseek_offtarget_snake.R")
 
@@ -270,8 +276,6 @@ def aggregate_input(wildcards):
     generated at the split step
     '''
     checkpoint_output = checkpoints.split_fasta.get(**wildcards).output[0]
-    #print(checkpoint_output)
-    
     #return expand(join(DIR_RES, "crispr_final_gRNA/{i}.tsv"),
     return expand(join(DIR_RES, "crispr_offtarget/{i}"), 
                   i=glob_wildcards(join(checkpoint_output, '{i}.fa')).i)

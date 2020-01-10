@@ -27,3 +27,5 @@ crispr:
   num_mm: 0
   # Number of final selected "best" gRNAs per tx
   num_select: 2
+  # offtarget scoring methog, Hsu-Zhang or CFDscore
+  scoring_method: CFDscore

@@ -8,7 +8,7 @@ sink(log, type="message")
 # for the paranoid
 set.seed(42)
 
-offtarget_run <- function(data_path, out_path, threads, genome_version, missmatches) {
+offtarget_run <- function(data_path, out_path, threads, genome_version, missmatches, smethod) {
     # R code
     library(CRISPRseek)
 
@@ -27,7 +27,8 @@ offtarget_run <- function(data_path, out_path, threads, genome_version, missmatc
                                     BSgenomeName = Hsapiens, # not sure how to do this with a var
                                     txdb = TxDb.Hsapiens.UCSC.hg38.knownGene, # not sure how to do this with a var
                                     orgAnn = org.Hs.egSYMBOL, # not sure how to do this with a var
-                                    max.mismatch = missmatches, 
+                                    max.mismatch = missmatches,
+				    scoring.method = smethod,
                                     outputDir = out_path, 
                                     overwrite = TRUE)
 
@@ -46,7 +47,8 @@ offtarget_run <- function(data_path, out_path, threads, genome_version, missmatc
                                         BSgenomeName = Hsapiens, # not sure how to do this with a var
                                         txdb = TxDb.Hsapiens.UCSC.hg19.knownGene, # not sure how to do this with a var
                                         orgAnn = org.Hs.egSYMBOL, # not sure how to do this with a var
-                                        max.mismatch = missmatches, 
+                                        max.mismatch = missmatches,
+     					scoring.method = smethod,					
                                         outputDir = out_path, 
                                         overwrite = TRUE)
      } else if ( genome_version == "mm9" ) {
@@ -64,7 +66,8 @@ offtarget_run <- function(data_path, out_path, threads, genome_version, missmatc
                                         BSgenomeName = Mmusculus, 
                                         txdb = TxDb.Mmusculus.UCSC.mm9.knownGene, 
                                         orgAnn = org.Mmu.egSYMBOL, 
-                                        max.mismatch = missmatches, 
+                                        max.mismatch = missmatches,
+     					scoring.method = smethod,
                                         outputDir = out_path, 
                                         overwrite = TRUE)
     } else if ( genome_version == "mm10" ) {
@@ -82,7 +85,8 @@ offtarget_run <- function(data_path, out_path, threads, genome_version, missmatc
                                         BSgenomeName = Mmusculus, 
                                         txdb = TxDb.Mmusculus.UCSC.mm10.knownGene, 
                                         orgAnn = org.Mmu.egSYMBOL, 
-                                        max.mismatch = missmatches, 
+                                        max.mismatch = missmatches,
+					scoring.method = smethod,
                                         outputDir = out_path, 
                                         overwrite = TRUE)
     } else {
@@ -95,6 +99,7 @@ offtarget_run(snakemake@input[[1]],
               snakemake@output[[1]], 
               snakemake@threads, 
               snakemake@params[["genome_version"]],
-              snakemake@params[["missmatches"]])
+              snakemake@params[["missmatches"]],
+	      snakemake@params[["scoring_method"]])
 
 
