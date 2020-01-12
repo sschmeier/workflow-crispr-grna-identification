@@ -81,7 +81,7 @@ for fname in files["gtf"]:
 ## =============================================================================
 ## SETUP FINAL TARGETS
 ## =============================================================================
-TARGETS = join(DIR_RES, "stats.txt")
+TARGETS = join(DIR_RES, "results.tsv")
 
 ## =============================================================================
 ## FUNCTIONS
@@ -318,6 +318,25 @@ rule stats:
         "python {params.script} {params.extra} -o {output}"
         " {input.bed} {input.info} {input.infiles} 2> {log}"
             
+
+rule combine_results:
+    input:
+        infiles=aggregate_input,
+        stats=join(DIR_RES, "stats.txt")
+    output:
+        join(DIR_RES, "results.tsv")
+    log:
+        join(DIR_LOGS, "combine_results.log")
+    benchmark:
+        join(DIR_BENCHMARKS, "combine_results.txt")
+    threads: 1
+    params:
+        script=join(DIR_SCRIPTS, "combine_results.py"),
+        extra=""
+    shell:
+        "python {params.script} {params.extra} -o {output}"
+        " {input.stats} {input.infiles} 2> {log}"
+
 
 rule clean:
     shell:
