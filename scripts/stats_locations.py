@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-NAME: get_unique_5prime.py
-==========================
+NAME: split_seqs.py
+===================
 
 DESCRIPTION
 ===========
@@ -15,7 +15,6 @@ USAGE
 VERSION HISTORY
 ===============
 
-0.0.2   
 0.0.1    2019    Initial version.
 
 LICENCE
@@ -25,7 +24,7 @@ s.schmeier@pm.me // https://www.sschmeier.com
 
 template version: 2.0 (2018/12/19)
 """
-__version__ = "0.0.2"
+__version__ = "0.0.1"
 __date__ = "2019"
 __email__ = "s.schmeier@pm.me"
 __author__ = "Sebastian Schmeier"
@@ -39,6 +38,8 @@ import bz2
 import zipfile
 import time
 import re
+import pandas as pd
+from collections import OrderedDict
 
 # non-standard lib: For color handling on the shell
 try:
@@ -98,7 +99,7 @@ def info(text, log=sys.stderr, repeat=False, flush=True):
 def parse_cmdline():
     """ Parse command-line args. """
     # parse cmd-line ----------------------------------------------------------
-    description = "Read gtf file and extract a set of unique 5 prime coordinates bed-style. Multiple files can be pipe'd into this script with (z)cat."
+    description = "Read files, make stats"
     version = "version {}, date {}".format(__version__, __date__)
     epilog = "Copyright {} ({})".format(__author__, __email__)
 
@@ -106,38 +107,15 @@ def parse_cmdline():
 
     parser.add_argument("--version", action="version", version="{}".format(version))
 
-    parser.add_argument(
-        "str_file",
-        metavar="GTF-FILE",
-        help='Delimited file. [use "-" or "stdin" to read from standard in]',
-    )
+    parser.add_argument("str_file_bed", metavar="BED-FILE", help="Bed-file")
+
+    parser.add_argument("str_file_info", metavar="INFO-FILE", help="INFO-file")
+
+    parser.add_argument("infiles", nargs="+", metavar="INFILE", help="Input files.")
 
     parser.add_argument(
-        "-o",
-        "--out",
-        metavar="STRING",
-        dest="outfile_name",
-        default=None,
-        help='Out-file. [default: "stdout"]',
+        "-o", "--outfile", dest="outfile_name", metavar="OUTFILE", help="Outfile."
     )
-
-    # parser.add_argument(
-    #     "--up",
-    #     metavar="INT",
-    #     dest="up",
-    #     default=0,
-    #     type=int,
-    #     help='Adjust TSS by this many bases upstream of the start position. [default: "0"]',
-    # )
-
-    # parser.add_argument(
-    #     "--dn",
-    #     metavar="INT",
-    #     dest="dn",
-    #     default=0,
-    #     type=int,
-    #     help='Adjust TSS by this many bases dnstream of the start position. [default: "0"]',
-    # )
 
     # if no arguments supplied print help
     if len(sys.argv) == 1:
@@ -163,14 +141,55 @@ def load_file(filename):
     return filehandle
 
 
+def stats(infiles, info_file, bed_file, outfile):
+
+    reader = csv.reader(open(bed_file, "r"), delimiter="\t")
+    dtx2loc = {}
+    for a in reader:
+        assert a[3] not in dtx2loc
+        dtx2loc[a[3]] = "chr{}:{}-{},{}".format(a[0], a[1], a[2], a[5])
+
+    reader = csv.reader(open(info_file, "r"), delimiter="\t")
+    d = OrderedDict()
+    for a in reader:
+        d[a[0]] = a
+
+    a_num_grna = []
+    a_num_avg_ot = []
+    for f in infiles:
+        loc = os.path.basename(f).split(".")[0]
+
+        tx = d[loc][1]
+        try:
+            location = dtx2loc[tx]
+        except KeyError:
+            error("Tx not found. EXIT.")
+
+        d[loc] += [location]
+
+        df = pd.read_csv(f, sep="\t", index_col=False, header=0)
+        df["offtarget_num"] = pd.to_numeric(df["offtarget_num"], errors="coerce")
+
+        # number without ot
+        num_zero_ot = df[df["offtarget_num"] == 0].shape[0]
+
+        # with ot
+        y = df[df["offtarget_num"] > 0]
+        num_with_ot = y.shape[0]
+        avg_num_ot = y["offtarget_num"].mean()
+
+        d[loc] += [str(num_zero_ot), str(num_with_ot), str(avg_num_ot)]
+
+    out_header = "loc\ttx\tregion_searched\tnum_grna\tnum_grna_without_offtargets\tnum_grna_with_offtargets\tavg_num_offtargets\n"
+
+    outfile.write(out_header)
+    for k in d:
+        outfile.write("{}\n".format("\t".join(d[k])))
+
+
 def main():
     """ The main funtion. """
     args, parser = parse_cmdline()
-
-    try:
-        fileobj = load_file(args.str_file)
-    except IOError:
-        error('Could not load file "{}". EXIT.'.format(args.str_file))
 
     # create outfile object
     if not args.outfile_name:
@@ -184,42 +203,9 @@ def main():
     else:
         outfileobj = open(args.outfile_name, "w")
 
-    regexp = re.compile('transcript_id "(.+?)";')
-
-    gtf_db = {}
-    # delimited file handler
-    rdr = csv.reader(filter(lambda row: row[0] != "#", fileobj), delimiter="\t")
-    # 'chr13', 'scallop', 'transcript', '27403581', '27406439', '.', '+', '.', 'transcript_id "gene.15092.65.1-x15-0"; gene_id "gene.15092.65-x15-0"; xloc "XLOC_013372"; class_code "u"; tss_id "TSS88407";']
-    for row in rdr:
-        if row[2] != "transcript":
-            continue
-        res = regexp.search(row[8])
-        if not res:
-            error("Could not extract transcript_id in line:\n{}".format("\t".join(row)))
-        txid = res.group(1)
-        chr = row[0]
-        strand = row[6]
-        if strand == "+":
-            tss = int(row[3])
-        else:
-            tss = int(row[4])
-
-        idx = (chr, tss, strand)
-        gtf_db[idx] = gtf_db.get(idx, []) + [txid]
-
-    fileobj.close()
-
-    # now make it bed-format, adjust positions if required
-    for k in dict(sorted(gtf_db.items())):
-        txids = "_".join(list(set(gtf_db[k])))
-        strand = k[2]
-        tss = k[1]
-        outfileobj.write(
-            "{}\t{}\t{}\t{}\t.\t{}\n".format(k[0], tss - 1, tss, txids, strand)
-        )
-
+    stats(args.infiles, args.str_file_info, args.str_file_bed, outfileobj)
     # ------------------------------------------------------
-    outfileobj.close()
+
     return
 
 

@@ -28,7 +28,12 @@ properties:
       genome:
         type: string
       version:
-          type: string
+        type: string
+#        oneOf:
+#          - hg38
+#          - hg19
+#          - mm10
+#          - mm9
     required:
       - genome
       - version
@@ -44,11 +49,17 @@ properties:
           ype: integer
       num_select:
         type: integer
+      scoring_method:
+        type: string
+#        oneOf:
+#          - Hsu-Zhang
+#          - CFDscore
     required:
       - max_num_test
       - min_efficacy
       - num_mm
       - num_select
+      - scoring_method
 
 required:
   - resultdir
