@@ -81,7 +81,7 @@ for fname in files["gtf"]:
 ## =============================================================================
 ## SETUP FINAL TARGETS
 ## =============================================================================
-TARGETS = join(DIR_RES, "collect.done.txt")
+TARGETS = join(DIR_RES, "stats.txt")
 
 ## =============================================================================
 ## FUNCTIONS
@@ -172,7 +172,7 @@ checkpoint split_fasta:
         join(DIR_RES, "unique_tx_pos_updn.fa")
     output:
         dir=directory(join(DIR_RES, "00_tmp")),
-        info=join(DIR_RES, "splits_info.tsv")
+        info=join(DIR_RES, "location_info.tsv")
     log:
         join(DIR_LOGS, "split_fasta.log")
     benchmark:
@@ -187,6 +187,7 @@ checkpoint split_fasta:
 
 
 rule crispr:
+    # Find gRNAs in the regions around the TSS
     input:
         join(DIR_RES, "00_tmp/{i}.fa")
     output:
@@ -206,6 +207,7 @@ rule crispr:
 
 
 rule select_bestEff_grna:
+    # From all gRNAs select the ones with best efficacy
     input:
         join(DIR_RES, "01_crispr/{i}")
     output:
@@ -228,6 +230,7 @@ rule select_bestEff_grna:
 
 
 rule crispr_offtargets:
+    # For the selected gRNAs in previous step, run offtarget analysis
     input:
         join(DIR_RES, "02_crispr_bestEff/{i}.fa")
     output:
@@ -249,11 +252,19 @@ rule crispr_offtargets:
 
 
 rule select_gRNA_min_offtargets:
+    # 1. Select all gRNA withput offtargets, sort by best efficacy
+    # 2. Select from those the top number
+    # 3. If number cannot be filled as here are not enough gRNAs 
+    #    withoput offtargets, do
+    #    
+    #    - Calculate number of offtargets for the ones with offtargets
+    #    - Select the ones with minimum offtargets 
+    #    - stop if we have the requred number selected or running out of gRNAs
     input:
-        join(DIR_RES, "03_crispr_offtarget/{i}")
+        offt_dir=join(DIR_RES, "03_crispr_offtarget/{i}"),
+        grna_file=join(DIR_RES, "02_crispr_bestEff/{i}.tsv")
     output:
-        eff=join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv"),
-        fa=join(DIR_RES, "04_crispr_final_gRNA/{i}.fa")
+        join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv")
     log:
         join(DIR_LOGS, "select_gRNA_min_offtargets/{i}.log")
     benchmark:
@@ -263,9 +274,8 @@ rule select_gRNA_min_offtargets:
     conda:
         join(DIR_ENVS, "pandas.yaml")
     params:
-        infile=join(DIR_RES, "03_crispr_offtarget/{i}/Summary.xls"),
-        num=CFG_NUM_FINAL,
-        missmatches=CFG_MM
+        infile_summary=join(DIR_RES, "03_crispr_offtarget/{i}/Summary.xls"),
+        num=CFG_NUM_FINAL
     script:
         join(DIR_SCRIPTS, "select_top_grna_offtargets.py")
 
@@ -276,16 +286,37 @@ def aggregate_input(wildcards):
     generated at the split step
     '''
     checkpoint_output = checkpoints.split_fasta.get(**wildcards).output[0]
-    #return expand(join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv"),
-    return expand(join(DIR_RES, "03_crispr_offtarget/{i}"), 
+    #return expand(join(DIR_RES, "03_crispr_offtarget/{i}"),     
+    return expand(join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv"),
                   i=glob_wildcards(join(checkpoint_output, '{i}.fa')).i)
 
 
-rule collect:
+# rule collect:
+#     input:
+#         aggregate_input,
+#     output:
+#         touch(join(DIR_RES, "collect.done.txt"))
+
+rule stats:
     input:
-        aggregate_input
+        infiles=aggregate_input,
+        info=join(DIR_RES, "location_info.tsv"),
+        bed=join(DIR_RES, "unique_tx_pos_updn.bed")
     output:
-        touch(join(DIR_RES, "collect.done.txt"))
+        join(DIR_RES, "stats.txt")
+    log:
+        join(DIR_LOGS, "stats.log")
+    benchmark:
+        join(DIR_BENCHMARKS, "stats.txt")
+    threads: 1
+    conda:
+        join(DIR_ENVS, "pandas.yaml")
+    params:
+        script=join(DIR_SCRIPTS, "stats_locations.py"),
+        extra=""
+    shell:
+        "python {params.script} {params.extra} -o {output}"
+        " {input.bed} {input.info} {input.infiles} 2> {log}"
             
 
 rule clean:
