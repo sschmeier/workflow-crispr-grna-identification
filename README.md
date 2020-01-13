@@ -1,4 +1,6 @@
-[![pipeline status](https://gitlab.com/schmeierlab/workflows/crisprseek-grna-id/badges/master/pipeline.svg)](https://gitlab.com/schmeierlab/workflows/crisprseek-grna-id/commits/master)
+[![GitLab Build status](https://gitlab.com/schmeierlab/workflows/crisprseek-grna-id/badges/master/pipeline.svg)](https://gitlab.com/schmeierlab/workflows/crisprseek-grna-id/commits/master)
+
+[![Travis Build Status](https://travis-ci.org/sschmeier/workflow-crispr-grna-identification.svg?branch=master)](https://travis-ci.org/sschmeier/workflow-crispr-grna-identification)
 
 # PROJECT: workflow-crispr-grna-identification
 
