@@ -261,7 +261,7 @@ rule select_gRNA_min_offtargets:
     #    - Select the ones with minimum offtargets 
     #    - stop if we have the requred number selected or running out of gRNAs
     input:
-        offt_dir=join(DIR_RES, "03_crispr_bestEff_offtargets//{i}"),
+        offt_dir=join(DIR_RES, "03_crispr_bestEff_offtargets/{i}"),
         grna_file=join(DIR_RES, "02_crispr_bestEff/{i}.tsv")
     output:
         temp(join(DIR_RES, "00_tmp/crispr_final_gRNA/{i}.tsv"))
