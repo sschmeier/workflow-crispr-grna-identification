@@ -27,7 +27,7 @@ The following steps will be performed by the workflow:
 5. Run [CRISPRseek](https://www.bioconductor.org/packages/release/bioc/html/CRISPRseek.html) on each sequence.
 6. Extract user-defined number of top gRNA per transcript.
 7. Run offtarget analysis for each gRNA found in step 6.
-8. Select user-defined top gRNAs per transcript based on efficiancy and offtarget analysis.
+8. Select user-defined number of top gRNAs per transcript based on efficiancy and offtarget analysis.
 
 
 ## Installation
