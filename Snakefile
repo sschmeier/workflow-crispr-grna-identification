@@ -102,7 +102,7 @@ rule extract_unique_5prime:
     input:
         files=files["gtf"]
     output:
-        join(DIR_RES, "unique_tx_pos.bed")
+        join(DIR_RES, "00_tmp/unique_tx_pos.bed")
     log:
         join(DIR_LOGS, "extract_unique_5prime.log")
     benchmark:
@@ -118,7 +118,7 @@ rule extract_genomesizes:
     input:
         CFG_GENOME
     output:
-        join(DIR_RES, "genome.sizes.txt")
+        join(DIR_RES, "00_tmp/genome.sizes.txt")
     log:
         join(DIR_LOGS, "extract_genomesizes.log")
     benchmark:
@@ -135,10 +135,10 @@ rule extract_genomesizes:
 ## 3. Get upstream and dn-stream around TSS
 rule extract_coordinates:
     input:
-        bed=join(DIR_RES, "unique_tx_pos.bed"),
-        sizes=join(DIR_RES, "genome.sizes.txt")
+        bed=join(DIR_RES, "00_tmp/unique_tx_pos.bed"),
+        sizes=join(DIR_RES, "00_tmp/genome.sizes.txt")
     output:
-        join(DIR_RES, "unique_tx_pos_updn.bed")
+        join(DIR_RES, "00_tmp/unique_tx_pos_updn.bed")
     log:
         join(DIR_LOGS, "extract_coordinates.log")
     benchmark:
@@ -153,9 +153,9 @@ rule extract_coordinates:
 ## 4. Extract seqs
 rule extract_fasta:
     input:
-        join(DIR_RES, "unique_tx_pos_updn.bed")
+        join(DIR_RES, "00_tmp/unique_tx_pos_updn.bed")
     output:
-        join(DIR_RES, "unique_tx_pos_updn.fa")
+        join(DIR_RES, "00_tmp/unique_tx_pos_updn.fa")
     log:
         join(DIR_LOGS, "extract_fasta.log")
     benchmark:
@@ -169,10 +169,10 @@ rule extract_fasta:
 ## 5. split fasta
 checkpoint split_fasta:
     input:
-        join(DIR_RES, "unique_tx_pos_updn.fa")
+        join(DIR_RES, "00_tmp/unique_tx_pos_updn.fa")
     output:
-        dir=directory(join(DIR_RES, "00_tmp")),
-        info=join(DIR_RES, "location_info.tsv")
+        dir=directory(join(DIR_RES, "00_tmp/splits")),
+        info=join(DIR_RES, "00_tmp/location_info.tsv")
     log:
         join(DIR_LOGS, "split_fasta.log")
     benchmark:
@@ -189,7 +189,7 @@ checkpoint split_fasta:
 rule crispr:
     # Find gRNAs in the regions around the TSS
     input:
-        join(DIR_RES, "00_tmp/{i}.fa")
+        join(DIR_RES, "00_tmp/splits/{i}.fa")
     output:
         directory(join(DIR_RES, "01_crispr/{i}"))
     log:
@@ -234,7 +234,7 @@ rule crispr_offtargets:
     input:
         join(DIR_RES, "02_crispr_bestEff/{i}.fa")
     output:
-        directory(join(DIR_RES, "03_crispr_offtarget/{i}"))
+        directory(join(DIR_RES, "03_crispr_bestEff_offtargets/{i}"))
     log:
         join(DIR_LOGS, "crispr_offtargets/{i}.log")
     benchmark:
@@ -261,10 +261,10 @@ rule select_gRNA_min_offtargets:
     #    - Select the ones with minimum offtargets 
     #    - stop if we have the requred number selected or running out of gRNAs
     input:
-        offt_dir=join(DIR_RES, "03_crispr_offtarget/{i}"),
+        offt_dir=join(DIR_RES, "03_crispr_bestEff_offtargets//{i}"),
         grna_file=join(DIR_RES, "02_crispr_bestEff/{i}.tsv")
     output:
-        join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv")
+        temp(join(DIR_RES, "00_tmp/crispr_final_gRNA/{i}.tsv"))
     log:
         join(DIR_LOGS, "select_gRNA_min_offtargets/{i}.log")
     benchmark:
@@ -274,7 +274,7 @@ rule select_gRNA_min_offtargets:
     conda:
         join(DIR_ENVS, "pandas.yaml")
     params:
-        infile_summary=join(DIR_RES, "03_crispr_offtarget/{i}/Summary.xls"),
+        infile_summary=join(DIR_RES, "03_crispr_bestEff_offtargets/{i}/Summary.xls"),
         num=CFG_NUM_FINAL
     script:
         join(DIR_SCRIPTS, "select_top_grna_offtargets.py")
@@ -286,22 +286,15 @@ def aggregate_input(wildcards):
     generated at the split step
     '''
     checkpoint_output = checkpoints.split_fasta.get(**wildcards).output[0]
-    #return expand(join(DIR_RES, "03_crispr_offtarget/{i}"),     
-    return expand(join(DIR_RES, "04_crispr_final_gRNA/{i}.tsv"),
+    return expand(join(DIR_RES, "00_tmp/crispr_final_gRNA/{i}.tsv"),
                   i=glob_wildcards(join(checkpoint_output, '{i}.fa')).i)
 
-
-# rule collect:
-#     input:
-#         aggregate_input,
-#     output:
-#         touch(join(DIR_RES, "collect.done.txt"))
 
 rule stats:
     input:
         infiles=aggregate_input,
-        info=join(DIR_RES, "location_info.tsv"),
-        bed=join(DIR_RES, "unique_tx_pos_updn.bed")
+        info=join(DIR_RES, "00_tmp/location_info.tsv"),
+        bed=join(DIR_RES, "00_tmp/unique_tx_pos_updn.bed")
     output:
         join(DIR_RES, "stats.txt")
     log:
