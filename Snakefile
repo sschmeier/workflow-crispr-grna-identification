@@ -304,12 +304,8 @@ rule stats:
     threads: 1
     conda:
         join(DIR_ENVS, "pandas.yaml")
-    params:
-        script=join(DIR_SCRIPTS, "stats_locations.py"),
-        extra=""
-    shell:
-        "python {params.script} {params.extra} -o {output}"
-        " {input.bed} {input.info} {input.infiles} 2> {log}"
+    script:
+        join(DIR_SCRIPTS, "stats_locations.py")
             
 
 rule combine_results:
@@ -323,12 +319,8 @@ rule combine_results:
     benchmark:
         join(DIR_BENCHMARKS, "combine_results.txt")
     threads: 1
-    params:
-        script=join(DIR_SCRIPTS, "combine_results.py"),
-        extra=""
-    shell:
-        "python {params.script} {params.extra} -o {output}"
-        " {input.stats} {input.infiles} 2> {log}"
+    script:
+        join(DIR_SCRIPTS, "combine_results.py")
 
 
 rule clean:
