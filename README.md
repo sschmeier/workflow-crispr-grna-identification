@@ -4,7 +4,7 @@
 
 - AUTHOR: Sebastian Schmeier (s.schmeier@pm.me)
 - DATE: 2019 
-- VERSION: 0.2.5
+- VERSION: 0.2.6
 
 ## Overview
 
