@@ -52,8 +52,8 @@ GCATGTCACTCACCTTCAGGCGG
 
 | loc        | tx              | region_searched           | num_grna_without_offtargets | num_grna_with_offtargets | avg_num_offtargets |
 | ---------- | --------------- | ------------------------- | --------------------------: | -----------------------: | -----------------: |
-| LOC0000001 | ENST00000419906 | chr21:46653521-46655022,- |                           2 |                        0 |                nan |
-| LOC0000002 | ENST00000427757 | chr21:46689763-46691264,+ |                           0 |                        2 |               11.5 |
+| LOC0000001 | ENST00000419906 | chr21:46653521-46655022,- |                           1 |                        0 |                nan |
+| LOC0000002 | ENST00000427757 | chr21:46689763-46691264,+ |                           0 |                        1 |                  7 |
 
 ## Installation
 
