@@ -12,7 +12,7 @@ gtf:
 # GENOME
 ref:
   # fasta-file
-  genome: ../../primary-mets/AG0271/tx-id/data/GRCh38_32/GRCh38.primary_assembly.genome.fa
+  genome: GRCh38_32/GRCh38.primary_assembly.genome.fa
   # the genome version
   # currently supported hg38, hg19, mm10, mm9
   version: hg38
@@ -28,4 +28,4 @@ crispr:
   # Number of final selected "best" gRNAs per tx
   num_select: 10
   # offtarget scoring methog, Hsu-Zhang or CFDscore
-  scoring_method: CFDscore
+  scoring_method: Hsu-Zhang
