@@ -1,5 +1,5 @@
 ## =============================================================================
-## WORKFLOW PROJECT: get-crispr-grna
+## WORKFLOW PROJECT: workflow-crispr-grna-identification
 ## INIT DATE: 2019
 import pandas as pd
 import glob, os, os.path, datetime, sys, csv
@@ -81,7 +81,7 @@ for fname in files["gtf"]:
 ## =============================================================================
 ## SETUP FINAL TARGETS
 ## =============================================================================
-TARGETS = join(DIR_RES, "results.tsv")
+TARGETS = join(DIR_RES, "results.fa")
 
 ## =============================================================================
 ## FUNCTIONS
@@ -321,6 +321,26 @@ rule combine_results:
     threads: 1
     script:
         join(DIR_SCRIPTS, "combine_results.py")
+
+
+rule get_results_fa:
+    input:
+	    join(DIR_RES, "results.tsv")
+    output:
+        join(DIR_RES, "results.fa")
+    log:
+        join(DIR_LOGS, "get_results_fa.log")
+    benchmark:
+        join(DIR_BENCHMARKS, "get_results_fa.txt")
+    threads: 1
+    run:
+        # python   
+        with open(output[0], "w") as out:
+            reader = csv.reader(open(input[0], "r"), delimiter="\t")
+            header = next(reader)
+            for a in reader:
+                out.write(f">{a[5]}\n{a[4]}\n")
+        out.close()
 
 
 rule clean:
