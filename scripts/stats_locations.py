@@ -46,7 +46,7 @@ def stats(infiles, info_file, bed_file, outfile):
 
         d[loc] += [str(num_zero_ot), str(num_with_ot), str(avg_num_ot)]
 
-    out_header = "loc\ttx\tregion_searched\tnum_grna\tnum_grna_without_offtargets\tnum_grna_with_offtargets\tavg_num_offtargets\n"
+    out_header = "loc\ttx\tregion_searched\tnum_grna_without_offtargets\tnum_grna_with_offtargets\tavg_num_offtargets\n"
 
     outfile.write(out_header)
     for k in d:

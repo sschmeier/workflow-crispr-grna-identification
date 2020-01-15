@@ -29,6 +29,31 @@ The following steps will be performed by the workflow:
 7. Run offtarget analysis for each gRNA found in step 6.
 8. Select user-defined number of top gRNAs per transcript based on efficiancy and offtarget analysis.
 
+## Results
+
+### `results.tsv`
+
+| loc        | tx              | region_searched           | rank | gRNAplusPAM             | name                    | start | strand | extendedSequence               |       gRNAefficacy | offtarget_num | offtarget_max_score | offtarget_max_efficacy |
+| ---------- | --------------- | ------------------------- | ---: | ----------------------- | ----------------------- | ----: | :----: | ------------------------------ | -----------------: | ------------: | ------------------: | ---------------------: |
+| LOC0000001 | ENST00000419906 | chr21:46653521-46655022,- |    1 | TGTCCCACTGGGAAGCCAGGCGG | ENST00000419906_gR44r   |    60 |   -    | GGCCTGTCCCACTGGGAAGCCAGGCGGCCT | 0.8074969538485649 |             0 |                  NA |                     NA |
+| LOC0000002 | ENST00000427757 | chr21:46689763-46691264,+ |    1 | GCATGTCACTCACCTTCAGGCGG | ENST00000427757_gR1134f |  1118 |   +    | ATCCGCATGTCACTCACCTTCAGGCGGCCC |  0.774489110766013 |             7 |                 6.0 |      0.774489110766013 |
+
+
+### `results.fa`
+
+```
+>ENST00000419906_gR44r
+TGTCCCACTGGGAAGCCAGGCGG
+>ENST00000427757_gR1134f
+GCATGTCACTCACCTTCAGGCGG
+```
+
+### `stats.txt`
+
+| loc        | tx              | region_searched           | num_grna_without_offtargets | num_grna_with_offtargets | avg_num_offtargets |
+| ---------- | --------------- | ------------------------- | --------------------------: | -----------------------: | -----------------: |
+| LOC0000001 | ENST00000419906 | chr21:46653521-46655022,- |                           2 |                        0 |                nan |
+| LOC0000002 | ENST00000427757 | chr21:46689763-46691264,+ |                           0 |                        2 |               11.5 |
 
 ## Installation
 
