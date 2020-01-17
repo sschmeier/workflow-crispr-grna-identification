@@ -13,7 +13,7 @@ def stats(infiles, info_file, bed_file, outfile):
     dtx2loc = {}
     for a in reader:
         assert a[3] not in dtx2loc
-        dtx2loc[a[3]] = "chr{}:{}-{},{}".format(a[0], a[1], a[2], a[5])
+        dtx2loc[a[3]] = "{}:{}-{},{}".format(a[0], a[1], a[2], a[5])
         
     reader = csv.reader(open(info_file, "r"), delimiter="\t")
     d = OrderedDict()
