@@ -27,6 +27,7 @@ def select(infile, infile_grna, outfile, num):
 
     # if not gRNAefficacy column found, analysis did not work correct, add info re this
     if "gRNAefficacy" not in df.columns or "top10OfftargetTotalScore" not in df.columns:
+        i = 1
         for a in reader:
             outfile.write(
                 "{}\t{}\t{}\t{}\n".format(
@@ -36,7 +37,10 @@ def select(infile, infile_grna, outfile, num):
                     "offtarget_analysis_unsuccessful",
                 )
             )
-
+            # only print top num
+            if i == num:
+                break
+            i += 1
     else:
         # column to numeric replace NaN with 0 = > NaN are good!!
         df["top10OfftargetTotalScore"] = pd.to_numeric(
