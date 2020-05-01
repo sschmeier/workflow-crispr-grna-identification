@@ -1,2 +1,0 @@
-gtf
-temp/rdna.regions2.gtf
