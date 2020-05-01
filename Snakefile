@@ -54,6 +54,7 @@ if CFG_GENOME_VER not in ["hg38", "hg19", "mm10", "mm9"]:
 
 CFG_UP   = config["gtf"]["upstream"]
 CFG_DN   = config["gtf"]["dnstream"]
+CFG_SS   = config["crispr"]["same_strand"]
 CFG_NUM  = config["crispr"]["max_num_test"]
 CFG_MIN  = config["crispr"]["min_efficacy"]
 CFG_NUM_FINAL = config["crispr"]["num_select"]
@@ -169,7 +170,8 @@ rule extract_fasta:
 ## 5. split fasta
 checkpoint split_fasta:
     input:
-        join(DIR_RES, "00_tmp/unique_tx_pos_updn.fa")
+        fa=join(DIR_RES, "00_tmp/unique_tx_pos_updn.fa"),
+        bed=join(DIR_RES, "00_tmp/unique_tx_pos_updn.bed")
     output:
         dir=directory(join(DIR_RES, "00_tmp/splits")),
         info=join(DIR_RES, "00_tmp/location_info.tsv")
@@ -183,7 +185,7 @@ checkpoint split_fasta:
         script=join(DIR_SCRIPTS, "split_seqs.py"),
         extra=""
     shell:
-        "python {params.script} {params.extra} {input} {output.dir} {output.info} 2> {log}"
+        "python {params.script} {params.extra} {input.fa} {input.bed} {output.dir} {output.info} 2> {log}"
 
 
 rule crispr:
@@ -209,7 +211,8 @@ rule crispr:
 rule select_bestEff_grna:
     # From all gRNAs select the ones with best efficacy
     input:
-        join(DIR_RES, "01_crispr/{i}")
+        join(DIR_RES, "01_crispr/{i}"),
+        join(DIR_RES, "00_tmp/location_info.tsv")
     output:
         eff=join(DIR_RES, "02_crispr_bestEff/{i}.tsv"),
         fa=join(DIR_RES, "02_crispr_bestEff/{i}.fa")
@@ -224,7 +227,9 @@ rule select_bestEff_grna:
     params:
         in_eff=join(DIR_RES, "01_crispr/{i}/gRNAefficacy.xls"),
         num=CFG_NUM,
-        min=CFG_MIN
+        min=CFG_MIN,
+        same_strand=CFG_SS,
+        location="{i}"
     script:
         join(DIR_SCRIPTS, "select_top_grna.py")
 
