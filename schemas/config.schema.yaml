@@ -29,11 +29,11 @@ properties:
         type: string
       version:
         type: string
-#        oneOf:
-#          - hg38
-#          - hg19
-#          - mm10
-#          - mm9
+    #        oneOf:
+    #          - hg38
+    #          - hg19
+    #          - mm10
+    #          - mm9
     required:
       - genome
       - version
@@ -41,20 +41,23 @@ properties:
   crispr:
     type: object
     properties:
+      same_strand:
+        type: boolean
       max_num_test:
         type: integer
       min_efficacy:
         type: number
       num_mm:
-          ype: integer
+        type: integer
       num_select:
         type: integer
       scoring_method:
         type: string
-#        oneOf:
-#          - Hsu-Zhang
-#          - CFDscore
+    #        oneOf:
+    #          - Hsu-Zhang
+    #          - CFDscore
     required:
+      - same_strand
       - max_num_test
       - min_efficacy
       - num_mm

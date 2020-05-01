@@ -106,12 +106,11 @@ def parse_cmdline():
     parser.add_argument("--version", action="version", version="{}".format(version))
 
     parser.add_argument("str_file", metavar="FASTA-FILE", help="Delimited file.")
+    parser.add_argument("str_file2", metavar="BED-FILE", help="Delimited file.")
 
     parser.add_argument("str_dir", metavar="OUTDIR", help="Output directory.")
-    
-    parser.add_argument("outfile_name", metavar="OUTFILE", help="Splits info file.")
 
-    
+    parser.add_argument("outfile_name", metavar="OUTFILE", help="Splits info file.")
 
     # if no arguments supplied print help
     if len(sys.argv) == 1:
@@ -139,7 +138,7 @@ def load_file(filename):
 
 def make_safe(fname):
     """Make a safe filename"""
-    keepcharacters = ('.', '_', '-')
+    keepcharacters = (".", "_", "-")
     return "".join(c for c in fname if c.isalnum() or c in keepcharacters).rstrip()
 
 
@@ -152,35 +151,48 @@ def main():
     except IOError:
         error('Could not load file "{}". EXIT.'.format(args.str_file))
 
+    try:
+        fileobj2 = load_file(args.str_file2)
+    except IOError:
+        error('Could not load file "{}". EXIT.'.format(args.str_file2))
+
     # create outfile object
     if not args.outfile_name:
         outfileobj = sys.stdout
-    elif args.outfile_name in ['-', 'stdout']:
+    elif args.outfile_name in ["-", "stdout"]:
         outfileobj = sys.stdout
-    elif args.outfile_name.split('.')[-1] == 'gz':
-        outfileobj = gzip.open(args.outfile_name, 'wt')
-    elif args.outfile_name.split('.')[-1] == 'bz2':
-        outfileobj = bz2.BZ2File(args.outfile_name, 'wt')
+    elif args.outfile_name.split(".")[-1] == "gz":
+        outfileobj = gzip.open(args.outfile_name, "wt")
+    elif args.outfile_name.split(".")[-1] == "bz2":
+        outfileobj = bz2.BZ2File(args.outfile_name, "wt")
     else:
-        outfileobj = open(args.outfile_name, 'w')
+        outfileobj = open(args.outfile_name, "w")
 
-        
     if not os.path.exists(args.str_dir):
         os.makedirs(args.str_dir)
 
     from Bio import SeqIO
+
+    id2strand = {}
+    for a in csv.reader(fileobj2, delimiter="\t"):
+        id2strand[a[3]] = a[5]
+
     i = 0
     for record in SeqIO.parse(fileobj, "fasta"):
         i += 1
+        try:
+            strand = id2strand[record.id]
+        except KeyError:
+            error("ID {} not found in bed-file. EXIT.".format(record.id))
+
         loc = "LOC{}".format(str(i).zfill(7))
         outfile = os.path.join(args.str_dir, "{}.fa".format(loc))
         SeqIO.write(record, outfile, "fasta")
-        outfileobj.write("{}\t{}\n".format(loc, record.id))
+        outfileobj.write("{}\t{}\t{}\n".format(loc, record.id, strand))
 
     # ------------------------------------------------------
 
     return
-
 
 
 if __name__ == "__main__":

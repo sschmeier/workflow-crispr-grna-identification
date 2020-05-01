@@ -16,8 +16,10 @@ ref:
   # the genome version
   # currently supported hg38, hg19, mm10, mm9
   version: hg38
-  
+
 crispr:
+  # Should we only restrict gRNA to the same strand as the tx?
+  same_strand: False
   # test this many top gRNAs for off targets
   # the more the longer it will run
   max_num_test: 25
@@ -25,7 +27,7 @@ crispr:
   min_efficacy: 0
   # number allowed missmatches for offtarget analysis
   num_mm: 0
-  # Number of final selected "best" gRNAs per tx
+  # Number of final selected "best" gRNAs per tx from max_num_test
   num_select: 10
   # offtarget scoring methog, Hsu-Zhang or CFDscore
   scoring_method: Hsu-Zhang
