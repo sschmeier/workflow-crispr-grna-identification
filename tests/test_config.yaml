@@ -18,6 +18,7 @@ ref:
   version: hg38
   
 crispr:
+  same_strand: False
   # test this many top gRNAs for off targets
   # the more the longer it will run
   max_num_test: 3
